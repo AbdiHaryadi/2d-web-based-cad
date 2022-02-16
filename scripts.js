@@ -78,11 +78,11 @@ function init() {
 			
 			function render() {
 				gl.clear(gl.COLOR_BUFFER_BIT); // Harus ada setiap render!
-				renderPolygonHelper();
-				renderPolygon();
+				renderPolygonsHelper();
+				renderPolygons();
 			}
 			
-			function renderPolygon() {
+			function renderPolygons() {
 				polygons.forEach(polygon => {
 					const pointList = polygon.getTriangulationPoints();
 					const colorList = Array(pointList.length).fill(polygon.getColor());
@@ -103,7 +103,7 @@ function init() {
 				});
 			}
 			
-			function renderPolygonHelper() {
+			function renderPolygonsHelper() {
 				if (helperPoints.length > 0) {
 					gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
 					gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(helperPoints.map(
@@ -126,13 +126,13 @@ function init() {
 				helperPoints.push(point);
 				render();
 			});
-			polygonDrawerUI.listen("lastPointRemoved", point => {
-				helperPoints.pop(); // Remove last element
-				render();
-			});
 			polygonDrawerUI.listen("polygonCreated", polygon => {
 				helperPoints = []; // clear helperPoints
 				polygons.push(polygon);
+				render();
+			});
+			polygonDrawerUI.listen("polygonAborted", () => {
+				helperPoints = []; // clear helperPoints
 				render();
 			});
 			

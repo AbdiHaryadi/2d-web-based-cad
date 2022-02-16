@@ -13,6 +13,8 @@ class Point2D {
 	}
 	
 	static getOrientation(p1, p2, p3) {
+		// WARNING: diambil alih oleh getSignedParallelogramArea.
+		// Hapus jika tidak diperlukan.
 		/* Idea: find the determinant of this matrix:
 		 *       [ 1   p1.x   p1.y ]
 		 *       [ 1   p2.x   p2.y ]

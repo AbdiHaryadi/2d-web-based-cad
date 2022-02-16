@@ -6,7 +6,6 @@ class Polygon2D {
 		if (color) { // defined
 			this._color = color;
 		} else {
-			console.log(color);
 			this._color = new Color(0, 0, 0);
 		}
 		
@@ -62,34 +61,32 @@ class Polygon2D {
 	_makeCounterClockwiseOrientation() {
 		const convexHullPoints = this._getConvexHullPoints();
 		
-		let i1 = 0;
-		let p1 = this._points[i1];
-		while ((!convexHullPoints.includes(p1))) {
-			// Guaranteed loop will be stop
-			p1 = this._points[++i1];
-		} // convexHullPoints.includes(p1)
+		function findNextConvexHullPointIndex(points, startIndex) {
+			// return points.length if not found
+			
+			let i = startIndex;
+			let p = points[startIndex];
+			while ((!convexHullPoints.includes(p)) && (i < points.length)) {
+				p = points[++i];
+			} // convexHullPoints.includes(p) or i == this._points.length
+			return i;
+		}
 		
-		let i2 = i1 + 1;
-		let p2 = this._points[i2];
-		while ((!convexHullPoints.includes(p2)) && (i2 < this._points.length)) {
-			p2 = this._points[++i2];
-		} // convexHullPoints.includes(p2) or i2 == this._points.length
+		const i1 = findNextConvexHullPointIndex(this._points, 0); // Guaranteed found
 		
+		const i2 = findNextConvexHullPointIndex(this._points, i1 + 1);
 		if (i2 == this._points.length) {
 			throw new Error("Invalid polygon! (only one convex hull point detected)");
 		} // else: continue
 		
-		let i3 = i2 + 1;
-		let p3 = this._points[i3];
-		while ((!convexHullPoints.includes(p3)) && (i3 < this._points.length)) {
-			p3 = this._points[++i3];
-		} // convexHullPoints.includes(p3) or i3 == this._points.length
-		
+		const i3 = findNextConvexHullPointIndex(this._points, i2 + 1);
 		if (i3 == this._points.length) {
-			throw new Error("Invalid polygon! (only two convex hull points detected)");
+			throw new Error("Invalid polygon! (only one convex hull point detected)");
 		} // else: continue
-		// const i3First = i3;
 		
+		const p1 = this._points[i1];
+		const p2 = this._points[i2];
+		const p3 = this._points[i3];
 		let selectedOrientationValue = Point2D.getSignedParallelogramArea(p1, p2, p3);
 		
 		if (selectedOrientationValue == 0) {
@@ -100,7 +97,7 @@ class Polygon2D {
 		} // else: it's counterclockwise; do nothing.
 		
 		// This is a self-intersection validation
-		// Needed later.
+		// Needed later or deleted if not needed.
 		/*
 		let nextI3 = i3 + 1;
 		let nextP3 = this._points[nextI3];
@@ -110,7 +107,7 @@ class Polygon2D {
 		} // convexHullPoints.includes(nextP3)
 		
 		while (i3 != i3First) {
-			// i1 = i2;
+			// pointIdx = i2;
 			// i2 = i3;
 			i3 = nextI3;
 			
@@ -133,7 +130,7 @@ class Polygon2D {
 				nextP3 = this._points[nextI3];
 			} // convexHullPoints.includes(nextP3)
 		
-			i1 = i2;
+			pointIdx = i2;
 			i2 = i3;
 			i3 = nextI3;
 		} // i3 == i3sFirst
@@ -153,15 +150,12 @@ class Polygon2D {
 	getTriangulationPoints() {
 		this._makeCounterClockwiseOrientation();
 		
-		// Asumsikan titiknya berurutan counterclockwise dan lebih dari 2.
-		let i1 = 0;
-		let i2 = 1;
-		let i3 = 2;
+		let pointIdx = 0;
 		
 		let currentPoints = this._points.slice();
-		let p1 = currentPoints[i1];
-		let p2 = currentPoints[i2];
-		let p3 = currentPoints[i3];
+		let p1 = currentPoints[pointIdx];
+		let p2 = currentPoints[pointIdx + 1];
+		let p3 = currentPoints[pointIdx + 2];
 		
 		let result = [];
 		
@@ -170,10 +164,11 @@ class Polygon2D {
 				// Colinear or counterclockwise
 				// Make sure this is "ear" triangle (a.k.a. no vertices inside it)
 				let isEar = true;
-				let i4 = 0;
-				while (i4 < currentPoints.length && isEar) {
-					if (i4 !== i1 && i4 !== i2 && i4 !== i3) {
-						let p4 = currentPoints[i4];
+				let earTestPointIdx = 0;
+				
+				while (earTestPointIdx < currentPoints.length && isEar) {
+					if ((earTestPointIdx - pointIdx + currentPoints.length) % currentPoints.length > 2) {
+						let p4 = currentPoints[earTestPointIdx];
 						// Outside includes edge.
 						const isOutside =
 							(Point2D.getSignedParallelogramArea(p1, p2, p4) <= 0)
@@ -182,33 +177,24 @@ class Polygon2D {
 						isEar = isOutside;
 						
 					} // else: skip
-					i4 += 1;
+					earTestPointIdx += 1;
 				}
 				
 				if (isEar) {
+					// Make face
 					result.push(p1, p2, p3);
-				
-					currentPoints.splice(i2, 1);
+					currentPoints.splice((pointIdx + 1) % currentPoints.length, 1);
 					
-					i1 = i1 % currentPoints.length;
-					i2 = (i1 + 1) % currentPoints.length;
-					i3 = (i1 + 2) % currentPoints.length;
-				} else {
-					console.log(p1, p2, p3);
-					i1 = (i1 + 1) % currentPoints.length;
-					i2 = (i2 + 1) % currentPoints.length;
-					i3 = (i3 + 1) % currentPoints.length;
-				}
+				} // else: don't; you can break the shape
 				
-			} else {
-				i1 = (i1 + 1) % currentPoints.length;
-				i2 = (i2 + 1) % currentPoints.length;
-				i3 = (i3 + 1) % currentPoints.length;
-			}
+			} // else: no need to check
 			
-			p1 = currentPoints[i1];
-			p2 = currentPoints[i2];
-			p3 = currentPoints[i3];
+			// Check another points
+			pointIdx = (pointIdx + 1) % currentPoints.length;
+			
+			p1 = currentPoints[pointIdx];
+			p2 = currentPoints[(pointIdx + 1) % currentPoints.length];
+			p3 = currentPoints[(pointIdx + 2) % currentPoints.length];
 			
 		} // currentPoints.length == 3
 		

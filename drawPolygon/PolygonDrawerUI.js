@@ -4,56 +4,94 @@ class PolygonDrawerUI {
 		this._currentPoints = [];
 		this._callbackFunctions = {
 			"pointCreated": [],
-			"lastPointRemoved": [],
 			"polygonCreated": [],
+			"polygonAborted": [],
 		};
 		this._status = "idle";
-		this._firstPoint = null;
-		this._epsilon = 0.04;
+		this._epsilon = 0.05;
 		
 		this._mouseDownEventListener = event => {
-			if (this._status === "idle") {
-				this._status = "firstPointCreated";
-				const newX = 2 * event.offsetX / this._canvas.width - 1;
-				const newY = -2 * event.offsetY / this._canvas.height + 1;
-				const newPoint = new Point2D(newX, newY);
-				this._firstPoint = newPoint;
-				this._currentPoints.push(newPoint);
+			let newPoint;
+			
+			if (this._currentPoints.length === 0) {
+				// Create first point and commit
+				const newPoint = this._addNewPointToCurentPointsFromMouseEvent(event);
 				this._fireEvent("pointCreated", newPoint);
+			}
+			
+			if (this._status === "idle") {
+				// Create new point
+				this._addNewPointToCurentPointsFromMouseEvent(event);
 				
 			} else {
-				this._status = "determineNewPoint";
+				// Continue the latest point
+				this._updateLatestPointFromMouseEvent(event);
 			}
+			
+			this._status = "movingPoint";
 		};
 		
 		this._mouseUpEventListener = event => {
-			if (this._status === "determineNewPoint") {
-				const newX = 2 * event.offsetX / this._canvas.width - 1;
-				const newY = -2 * event.offsetY / this._canvas.height + 1;
-				const newPoint = new Point2D(newX, newY);
-				if (newPoint.distance(this._firstPoint) < this._epsilon) {
-					this._fireEvent("polygonCreated", new Polygon2D(this._currentPoints.slice()));
+			if (this._status === "movingPoint") {
+				const firstPoint = this._currentPoints[0];
+				const latestPoint = this._currentPoints[this._currentPoints.length - 1];
+				if (latestPoint.distance(firstPoint) < this._epsilon) {
+					// Abort the latest point
+					this._currentPoints.pop();
+					
+					if (this._currentPoints.length >= 3) {
+						this._fireEvent("polygonCreated", new Polygon2D(this._currentPoints.slice()));
+					} else {
+						// don't build polygon
+						this._fireEvent("polygonAborted", null);
+					}
+					
+					// Clear
 					this._currentPoints = [];
 					this._status = "idle";
-					this._firstPoint = null;
 					
 				} else {
-					this._currentPoints.push(newPoint);
-					this._fireEvent("pointCreated", newPoint);
+					const secondLatestPoint = this._currentPoints[this._currentPoints.length - 2];
+					if (latestPoint.distance(secondLatestPoint) < this._epsilon) {
+						// Abort the latestPoint
+						this._currentPoints.pop();
+					} else {
+						// Commit the latest point
+						this._fireEvent("pointCreated", latestPoint);
+					}
 				}
-				
-			} else if (this._status === "firstPointCreated") {
-				this._fireEvent("lastPointRemoved", null);
-				this._status = "idle";
-				this._currentPoints = [];
 			}
+			
+			this._status = "idle";
 		};
 		
 		this._mouseMoveEventListener = event => {
-			if (this._status === "firstPointCreated") {
-				this._status = "determineNewPoint"
-			} // else: nothing happened
+			if (this._status === "movingPoint") {
+				this._updateLatestPointFromMouseEvent(event);
+			} // else: do nothing
 		};
+	}
+	
+	_getWebGLCoordinateFromMouseEvent(event) {
+		// Return WebGL coordinate from mouse position (determined by event)
+		const newX = 2 * event.offsetX / this._canvas.width - 1;
+		const newY = -2 * event.offsetY / this._canvas.height + 1;
+		return [newX, newY];
+	}
+	
+	_addNewPointToCurentPointsFromMouseEvent(event) {
+		const [newX, newY] = this._getWebGLCoordinateFromMouseEvent(event);
+		const newPoint = new Point2D(newX, newY);
+		this._currentPoints.push(newPoint);
+		return newPoint;
+	}
+	
+	_updateLatestPointFromMouseEvent(event) {
+		// Update latest point like from mouse position (determined by event)
+		const latestPoint = this._currentPoints[this._currentPoints.length - 1];
+		const [newX, newY] = this._getWebGLCoordinateFromMouseEvent(event);
+		latestPoint.x = newX;
+		latestPoint.y = newY;
 	}
 	
 	listen(event, callback) {
@@ -75,6 +113,5 @@ class PolygonDrawerUI {
 		this._canvas.removeEventListener("mouseup", this._mouseUpEventListener);
 		this._canvas.removeEventListener("mousemove", this._mouseMoveEventListener);
 	}
-	
 	
 }
