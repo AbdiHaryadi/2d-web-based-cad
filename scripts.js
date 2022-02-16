@@ -17,6 +17,8 @@ function init() {
 			{
 				gl_Position = vec4(vPosition, 0.0, 1.0);
 				fColor = vec4(vColor, 1.0);
+				
+				gl_PointSize = 5.0;
 			}
 		`;
 		
@@ -70,31 +72,71 @@ function init() {
 			
 			// Render part
 			gl.clear(gl.COLOR_BUFFER_BIT); // Harus ada setiap render!
-	
-			// Contoh render:
-			var vertices = [
-				-0.5, -0.5,
-				0.5, -0.5,
-				0.0, 0.0,
-			];
 			
-			var colors = [
-				1.0, 0.0, 0.0, // #ff0000 (red)
-				1.0, 1.0, 0.0, // #ffff00 (yellow)
-				0.0, 0.0, 1.0, // #0000ff (blue)
-			];
+			let helperPoints = [];
+			let polygons = [];
 			
-			var numPoints = 3; // Sesuaikan dengan banyak titik.
+			function render() {
+				gl.clear(gl.COLOR_BUFFER_BIT); // Harus ada setiap render!
+				renderPolygonHelper();
+				renderPolygon();
+			}
 			
-			gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-			gl.bindBuffer(gl.ARRAY_BUFFER, null);
+			function renderPolygon() {
+				polygons.forEach(polygon => {
+					const pointList = polygon.getTriangulationPoints();
+					const colorList = Array(pointList.length).fill(polygon.getColor());
+					
+					gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+					gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pointList.map(
+						p => p.getListRepr()
+					).flat()), gl.STATIC_DRAW);
+					gl.bindBuffer(gl.ARRAY_BUFFER, null);
+					
+					gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+					gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorList.map(
+						c => c.getNormalizedListRepr()
+					).flat()), gl.STATIC_DRAW);
+					gl.bindBuffer(gl.ARRAY_BUFFER, null);
+					
+					gl.drawArrays(gl.TRIANGLES, 0, pointList.length);
+				});
+			}
 			
-			gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-			gl.bindBuffer(gl.ARRAY_BUFFER, null);
+			function renderPolygonHelper() {
+				if (helperPoints.length > 0) {
+					gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+					gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(helperPoints.map(
+						p => p.getListRepr()
+					).flat()), gl.STATIC_DRAW);
+					gl.bindBuffer(gl.ARRAY_BUFFER, null);
+					
+					gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+					gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(
+						Array(helperPoints.length * 3).fill(0.0)
+					), gl.STATIC_DRAW);
+					gl.bindBuffer(gl.ARRAY_BUFFER, null);
+					
+					gl.drawArrays(gl.POINTS, 0, helperPoints.length);
+				}
+			}
 			
-			gl.drawArrays(gl.TRIANGLES, 0, 3); // Jenisnya segitiga; boleh diubah
+			const polygonDrawerUI = new PolygonDrawerUI(canvas);
+			polygonDrawerUI.listen("pointCreated", point => {
+				helperPoints.push(point);
+				render();
+			});
+			polygonDrawerUI.listen("lastPointRemoved", point => {
+				helperPoints.pop(); // Remove last element
+				render();
+			});
+			polygonDrawerUI.listen("polygonCreated", polygon => {
+				helperPoints = []; // clear helperPoints
+				polygons.push(polygon);
+				render();
+			});
+			
+			polygonDrawerUI.activate();
 		}
 	}
 }
