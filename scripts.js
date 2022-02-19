@@ -8,30 +8,30 @@ function init() {
   } else {
     // Create shader
     const vertCode = `
-			/* Your vertex program here */
-			attribute vec2 vPosition;
-			attribute vec3 vColor;
-			varying vec4 fColor;
-			void main()
-			{
-				gl_Position = vec4(vPosition, 0.0, 1.0);
-				fColor = vec4(vColor, 1.0);
-			}
-		`;
+      /* Your vertex program here */
+      attribute vec2 vPosition;
+      attribute vec3 vColor;
+      varying vec4 fColor;
+      void main()
+      {
+        gl_Position = vec4(vPosition, 0.0, 1.0);
+        fColor = vec4(vColor, 1.0);
+      }
+    `;
 
     const vertShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vertShader, vertCode);
     gl.compileShader(vertShader);
 
     const fragCode = `
-			/* Your fragment program here */
-			precision mediump float;
-			varying vec4 fColor;
-			void main()
-			{
-				gl_FragColor = fColor;
-			}
-		`;
+      /* Your fragment program here */
+      precision mediump float;
+      varying vec4 fColor;
+      void main()
+      {
+        gl_FragColor = fColor;
+      }
+    `;
 
     const fragShader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(fragShader, fragCode);
