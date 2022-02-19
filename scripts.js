@@ -1,4 +1,131 @@
+// Classes
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  getArray() {
+    return [this.x, this.y]
+  }
+}
+
+class Line {
+  constructor(p1, p2, color) {
+    this.p1 = p1;
+    this.p2 = p2;
+    this.color = color;
+  }
+
+  getLength() {
+    return Math.sqrt(Math.pow((this.p1.x - this.p2.x), 2) 
+      + Math.pow((this.p1.y - this.p2.y), 2));
+  }
+}
+
+class Square {
+  constructor(p1, p2, color) {
+    this.p1 = p1;
+    this.p2 = p2;
+    this.color = color;
+  }
+
+  getArray() {
+    return Square.getArray(this.p1, this.p2);
+  }
+
+  static getArray(p1, p2) {
+    const length = Math.min(Math.abs(p2.x - p1.x),
+      Math.abs(p2.y - p1.y));
+    const pdiag = [p1.x + ((p2.x - p1.x > 0) ? length : (length * -1)),
+          p1.y + ((p2.y - p1.y > 0) ? length : (length * -1))];
+    return [
+      p1.x, p1.y,
+      pdiag[0], p1.y,
+      pdiag[0], pdiag[1],
+      p1.x, pdiag[1]
+    ];
+  }
+}
+
+class Vertex { // Warning: bertabrakan dengan class Point dan Point2D
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  getVertex() {
+    return [this.x, this.y];
+  }
+
+  match(v2) {
+    return (
+      this.getVertex()[0] == v2.getVertex()[0] &&
+      this.getVertex()[1] == v2.getVertex()[1]
+    );
+  }
+}
+
+class Rectangle {
+  constructor(v1, v2, color) {
+    this.v1 = v1;
+    this.v2 = v2;
+    this.color = color;
+  }
+
+  getVertices() {
+    return Rectangle.getVertices(this.v1, this.v2);
+  }
+
+  static getVertices(v1, v2) {
+    // TODO: kalau dirotasi gabener
+    return [v1.x, v1.y, v1.x, v2.y, v2.x, v2.y, v2.x, v1.y];
+  }
+}
+
 function init() {
+	/*		
+			
+			canvas.addEventListener('mousemove', (e) => {
+				if (drawing) {
+					const x = 2 * e.offsetX / canvas.width - 1;
+					const y = -2 * e.offsetY / canvas.height + 1;
+					
+					end_point = new Point(x, y);
+					render();
+				}
+			})
+
+			canvas.addEventListener('mousedown', (e) => {
+				const x = 2 * e.offsetX / canvas.width - 1;
+				const y = -2 * e.offsetY / canvas.height + 1;
+
+				if (drawing) {
+					drawing = false;
+				} else {
+					
+				}
+			})
+
+			// canvas.addEventListener('mouseup', (e) => {
+			// 	drawing = false;
+			// })
+			
+			let lines = [];
+			let squares = [];
+			
+			function render() {
+				gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+				renderLines();
+				renderSquares();
+				if (drawing && tool == "line") // change to selected color
+					renderLine(start_point, end_point, [0, 0, 0]);
+				if (drawing && tool == "square") // change to selected color
+					renderSquare(new Square(start_point, end_point, [0, 0, 0]));
+			}
+		}
+	}
+  */
   canvas = document.getElementById("gl-canvas");
   gl = canvas.getContext("webgl");
 
@@ -71,42 +198,6 @@ function init() {
       // Render part
       clear(); // Harus ada setiap render!
 
-      // Classes
-      class Vertex {
-        constructor(x, y) {
-          this.x = x;
-          this.y = y;
-        }
-
-        getVertex() {
-          return [this.x, this.y];
-        }
-
-        match(v2) {
-          return (
-            this.getVertex()[0] == v2.getVertex()[0] &&
-            this.getVertex()[1] == v2.getVertex()[1]
-          );
-        }
-      }
-
-      class Rectangle {
-        constructor(v1, v2, color) {
-          this.v1 = v1;
-          this.v2 = v2;
-          this.color = color;
-        }
-
-        getVertices() {
-          return Rectangle.getVertices(this.v1, this.v2);
-        }
-
-        static getVertices(v1, v2) {
-          // TODO: kalau dirotasi gabener
-          return [v1.x, v1.y, v1.x, v2.y, v2.x, v2.y, v2.x, v1.y];
-        }
-      }
-
       var tool = "";
       var drawing = false;
 
@@ -115,6 +206,9 @@ function init() {
       var vertexEnd;
       var rectangles = [];
       var currentColor = [0, 0, 0];
+      
+      let start_point = null;
+			let end_point = null;
 
       // Button listeners
       var vertexBtn = document.getElementById("vertexBtn");
@@ -217,8 +311,18 @@ function init() {
             case "vertex":
               break;
             case "line":
+              drawing = false;
+              lines.push(new Line(start_point, end_point, [0, 0, 0]));
+							// change to selected color
+              start_point = null;
+					    end_point = null;
               break;
             case "square":
+              drawing = false;
+              squares.push(new Square(start_point, end_point, [0, 0, 0]))
+							// change to selected color
+              start_point = null;
+					    end_point = null;
               break;
             case "rectangle":
               vertexEnd = new Vertex(x, y);
@@ -230,6 +334,7 @@ function init() {
               }
               break;
             case "polygon":
+              // TODO: Combine dengan polygon
               break;
             default:
               drawing = false;
@@ -239,6 +344,7 @@ function init() {
           if (tool != "") {
             drawing = true;
             vertexStart = new Vertex(x, y);
+            start_point = new Point(x, y);
           }
         }
         render();
@@ -314,6 +420,52 @@ function init() {
 					
 					gl.drawArrays(gl.POINTS, 0, helperPoints.length);
 				}
+			}
+      
+      function renderLine(start, end, color) {
+				// const start = line.p1;
+				// const end = line.p2;
+				// const color = line.color;
+
+				gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+				gl.bufferData(gl.ARRAY_BUFFER, 
+					new Float32Array([start.getArray(), end.getArray()].flat(2))
+					, gl.STATIC_DRAW);
+				gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+				gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+				gl.bufferData(gl.ARRAY_BUFFER, 
+					new Float32Array([color, color].flat(2)), gl.STATIC_DRAW);
+				gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+				gl.drawArrays(gl.LINES, 0, 2);
+			}
+
+			function renderLines() {
+				lines.forEach(line => {
+					renderLine(line.p1, line.p2, [0, 0, 0]);
+				});
+			}
+
+			function renderSquare(square) {
+				gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+				gl.bufferData(gl.ARRAY_BUFFER, 
+					new Float32Array(square.getArray().flat(2))
+					, gl.STATIC_DRAW);
+				gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+				gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+				gl.bufferData(gl.ARRAY_BUFFER, 
+					new Float32Array([square.color, square.color, square.color, square.color]), gl.STATIC_DRAW);
+				gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+				gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+			}
+
+			function renderSquares() {
+				squares.forEach(square => {
+					renderSquare(square);
+				})
 			}
 
       function render() {
