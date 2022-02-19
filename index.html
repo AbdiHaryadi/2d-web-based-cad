@@ -1,13 +1,30 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-	</head>
-	<body>
-		<canvas id="gl-canvas" width="512" height="512">
-			<!--Fallback message-->
-			Keliatannya perambanmu tidak mendukung WebGL. :(
-		</canvas>
-		<script type="text/javascript" src="scripts.js"></script>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="toolbar">
+      <button id="vertexBtn">Vertex</button>
+      <button id="lineBtn">Line</button>
+      <button id="squareBtn">Square</button>
+      <button id="rectangleBtn">Rectangle</button>
+      <button id="polygonBtn">Polygon</button>
+      <button id="pickerBtn">Color Picker</button>
+      <button id="clearBtn">Clear</button>
+      <button id="helpBtn">Help</button>
+      <p>Current tool: <span id="currentTool"></span></p>
+      <p>Color: <span id="currentColor"></span></p>
+      <button id="saveBtn">Save</button>
+      <button id="loadBtn">Load</button>
+      <br />
+      <br />
+    </div>
+    <canvas id="gl-canvas" width="512" height="512">
+      <!--Fallback message-->
+      Keliatannya perambanmu tidak mendukung WebGL. :(
+    </canvas>
+    <script type="text/javascript" src="scripts.js"></script>
+  </body>
 </html>
