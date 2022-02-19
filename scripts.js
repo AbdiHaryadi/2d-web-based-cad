@@ -194,13 +194,19 @@ function init() {
 					canvas.style.cursor = "default";
 				}
 			});
+			
+			function getCurrentUIHelperObjects() {
+				if (tool in uiMap) { // defined
+					return uiMap[tool].getHelperObjects();
+				} else {
+					return [];
+				}
+			}
 
 			function render() {
 				clear();
 				objectList.forEach(obj => obj.render(gl, vertex_buffer, color_buffer));
-				Object.entries(uiMap).forEach(([_, ui]) => {
-					ui.getHelperObjects().forEach(obj => obj.render(gl, vertex_buffer, color_buffer));
-				});
+				getCurrentUIHelperObjects().forEach(obj => obj.render(gl, vertex_buffer, color_buffer));
 			}
 
 			// clear canvas
