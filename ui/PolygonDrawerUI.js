@@ -9,6 +9,7 @@ class PolygonDrawerUI {
 		};
 		this._status = "idle";
 		this._epsilon = 0.05;
+		this.color = [0, 0, 0];
 		
 		this._mouseDownEventListener = event => {
 			let newPoint;
@@ -39,16 +40,22 @@ class PolygonDrawerUI {
 					// Abort the latest point
 					this._currentPoints.pop();
 					
+					let newPolygon = null;
+					
 					if (this._currentPoints.length >= 3) {
-						this._fireEvent("polygonCreated", new Polygon2D(this._currentPoints.slice()));
-					} else {
-						// don't build polygon
-						this._fireEvent("polygonAborted", null);
+						newPolygon =  new Polygon2D(this._currentPoints.slice(), this.color.slice());
 					}
 					
 					// Clear
 					this._currentPoints = [];
 					this._status = "idle";
+					
+					if (newPolygon === null) {
+						// don't build polygon
+						this._fireEvent("polygonAborted", null);
+					} else {
+						this._fireEvent("polygonCreated", newPolygon);
+					}
 					
 				} else {
 					const secondLatestPoint = this._currentPoints[this._currentPoints.length - 2];
@@ -112,6 +119,10 @@ class PolygonDrawerUI {
 		this._canvas.removeEventListener("mousedown", this._mouseDownEventListener);
 		this._canvas.removeEventListener("mouseup", this._mouseUpEventListener);
 		this._canvas.removeEventListener("mousemove", this._mouseMoveEventListener);
+	}
+	
+	getHelperObjects() {
+		return this._currentPoints;
 	}
 	
 }

@@ -1,13 +1,9 @@
 class Polygon2D {
-	constructor(points, color) {
+	constructor(points, color=[0, 0, 0]) {
 		// Assume points is more than 2
 		// Points does not make self-intersection Polygon2D
 		this._points = points.slice(); // copy the list
-		if (color) { // defined
-			this._color = color;
-		} else {
-			this._color = new Color(0, 0, 0);
-		}
+		this.color = color;
 		
 	}
 	
@@ -209,13 +205,20 @@ class Polygon2D {
 		return this._points.slice();
 	}
 	
-	getColor() {
-		return this._color;
+	render(gl, vertex_buffer, color_buffer) {
+		const pointList = this.getTriangulationPoints();
+		const colorList = Array(pointList.length).fill(this.color);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pointList.map(
+			p => p.getListRepr()
+		).flat()), gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorList.flat()), gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		
+		gl.drawArrays(gl.TRIANGLES, 0, pointList.length);
 	}
-	
-	setColor(color) {
-		this._color = color;
-	}
-	
-	
 }

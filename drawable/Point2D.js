@@ -1,11 +1,16 @@
 class Point2D {
-	constructor(x, y) {
+	constructor(x, y, color=[0, 0, 0]) {
 		this.x = x;
 		this.y = y;
+		this.color = color;
 	}
 	
 	getListRepr() {
 		return [this.x, this.y];
+	}
+	
+	equals(other) {
+		return ((this.x == other.x) && (this.y == other.y))
 	}
 	
 	distance(other) {
@@ -51,5 +56,17 @@ class Point2D {
 			- p1.x * (p3.y - p2.y)
 			+ p1.y * (p3.x - p2.x)
 		);
+	}
+	
+	render(gl, vertex_buffer, color_buffer) {
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.getListRepr()), gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.color), gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		
+		gl.drawArrays(gl.POINTS, 0, 1);
 	}
 }
