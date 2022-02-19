@@ -16,6 +16,8 @@ function init() {
       {
         gl_Position = vec4(vPosition, 0.0, 1.0);
         fColor = vec4(vColor, 1.0);
+        
+        gl_PointSize = 5.0;
       }
     `;
 
@@ -183,6 +185,27 @@ function init() {
           canvas.style.cursor = "default";
         }
       });
+      
+      // Polygon part
+      let helperPoints = [];
+			let polygons = [];
+      
+			const polygonDrawerUI = new PolygonDrawerUI(canvas);
+			polygonDrawerUI.listen("pointCreated", point => {
+				helperPoints.push(point);
+				render();
+			});
+			polygonDrawerUI.listen("polygonCreated", polygon => {
+				helperPoints = []; // clear helperPoints
+				polygons.push(polygon);
+				render();
+			});
+			polygonDrawerUI.listen("polygonAborted", () => {
+				helperPoints = []; // clear helperPoints
+				render();
+			});
+			
+			polygonDrawerUI.activate();
 
       // Functions
       function click(e, gl, canvas) {
@@ -253,10 +276,51 @@ function init() {
           renderRectangle(rectangle);
         });
       }
+      
+      function renderPolygons() {
+				polygons.forEach(polygon => {
+					const pointList = polygon.getTriangulationPoints();
+					const colorList = Array(pointList.length).fill(polygon.getColor());
+					
+					gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+					gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pointList.map(
+						p => p.getListRepr()
+					).flat()), gl.STATIC_DRAW);
+					gl.bindBuffer(gl.ARRAY_BUFFER, null);
+					
+					gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+					gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorList.map(
+						c => c.getNormalizedListRepr()
+					).flat()), gl.STATIC_DRAW);
+					gl.bindBuffer(gl.ARRAY_BUFFER, null);
+					
+					gl.drawArrays(gl.TRIANGLES, 0, pointList.length);
+				});
+			}
+			
+			function renderPolygonsHelper() {
+				if (helperPoints.length > 0) {
+					gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+					gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(helperPoints.map(
+						p => p.getListRepr()
+					).flat()), gl.STATIC_DRAW);
+					gl.bindBuffer(gl.ARRAY_BUFFER, null);
+					
+					gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+					gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(
+						Array(helperPoints.length * 3).fill(0.0)
+					), gl.STATIC_DRAW);
+					gl.bindBuffer(gl.ARRAY_BUFFER, null);
+					
+					gl.drawArrays(gl.POINTS, 0, helperPoints.length);
+				}
+			}
 
       function render() {
         clear();
         renderRectangles();
+        renderPolygonsHelper();
+				renderPolygons();
       }
 
       // clear canvas
