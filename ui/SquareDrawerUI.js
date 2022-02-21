@@ -62,6 +62,9 @@ class SquareDrawerUI {
 	}
 	
 	deactivate() {
+		this._drawing = false;
+		this._start_point = null;
+		this._end_point = null;
 		this._canvas.removeEventListener("mousedown", this._mouseDownEventListener);
 		this._canvas.removeEventListener("mousemove", this._mouseMoveEventListener);
 	}

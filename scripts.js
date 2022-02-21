@@ -93,6 +93,23 @@ function init() {
         render();
       });
 
+      // Line Move
+      const lineMoveUI = new LineMoveUI(canvas);
+      lineMoveUI.listen("moveStarted", () => {
+        lineMoveUI.getLine(objectList);
+        render();
+      });
+      lineMoveUI.listen("moveEnded", (line) =>  {
+        objectList.push(line);
+        render();
+      });
+      lineMoveUI.listen("moveAborted", () => {
+        render();
+      });
+      lineMoveUI.listen("lineMoved", () => {
+        render();
+      });
+
       // Square
       const squareDrawerUI = new SquareDrawerUI(canvas);
       squareDrawerUI.listen("squareCreated", (square) => {
@@ -103,6 +120,23 @@ function init() {
         render();
       });
       squareDrawerUI.listen("endPointCreated", () => {
+        render();
+      });
+
+      // Resize Square
+      const squareResizeUI = new SquareResizeUI(canvas);
+      squareResizeUI.listen("resizeStarted", () => {
+        squareResizeUI.getSquare(objectList);
+        render();
+      });
+      squareResizeUI.listen("resizeEnded", (square) => {
+        objectList.push(square);
+        render();
+      });
+      squareResizeUI.listen("resizeAborted", () => {
+        render();
+      });
+      squareResizeUI.listen("squareResized", () => {
         render();
       });
 
@@ -131,6 +165,8 @@ function init() {
         square: squareDrawerUI,
         rectangle: rectangleDrawerUI,
         polygon: polygonDrawerUI,
+        moveLine: lineMoveUI,
+        resizeSquare: squareResizeUI,
       };
 
       // Bind color to currentColor
@@ -146,6 +182,8 @@ function init() {
       var squareBtn = document.getElementById("squareBtn");
       var rectangleBtn = document.getElementById("rectangleBtn");
       var polygonBtn = document.getElementById("polygonBtn");
+      var moveLineBtn = document.getElementById("moveLineBtn");
+      var resizeSquareBtn = document.getElementById("resizeSquareBtn");
       var pickerBtn = document.getElementById("pickerBtn");
       var clearBtn = document.getElementById("clearBtn");
       var helpBtn = document.getElementById("helpBtn");
@@ -187,6 +225,12 @@ function init() {
       polygonBtn.addEventListener("click", function () {
         changeTool("polygon");
       });
+      moveLineBtn.addEventListener("click", function () {
+        changeTool("moveLine");
+      })
+      resizeSquareBtn.addEventListener("click", function (){
+        changeTool("resizeSquare");
+      })
       pickerBtn.addEventListener("click", function () {
         changeTool("picker");
       });
