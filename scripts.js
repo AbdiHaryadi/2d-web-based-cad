@@ -198,8 +198,16 @@ function init() {
       });
 
       helpBtn.addEventListener("click", function () {});
-      saveBtn.addEventListener("click", function () {});
-      loadBtn.addEventListener("click", function () {});
+      saveBtn.addEventListener("click", function () {
+        saveFile(objectList);
+      });
+	  
+      loadBtn.addEventListener("click", function () {
+        loadFile(newObjectList => {
+          objectList = newObjectList;
+		  render();
+        });
+      });
 
       canvas.addEventListener("mousemove", () => {
         if (drawing) {
