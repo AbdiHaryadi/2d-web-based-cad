@@ -1,15 +1,15 @@
 class PolygonDrawerUI {
 	constructor(canvas) {
 		this._canvas = canvas;
-		this._currentPoints = [];
 		this._callbackFunctions = {
 			"pointCreated": [],
 			"polygonCreated": [],
 			"polygonAborted": [],
 		};
-		this._status = "idle";
 		this._epsilon = 0.05;
 		this.color = [0, 0, 0];
+		
+		this._setInitialState();
 		
 		this._mouseDownEventListener = event => {
 			let newPoint;
@@ -47,8 +47,7 @@ class PolygonDrawerUI {
 					}
 					
 					// Clear
-					this._currentPoints = [];
-					this._status = "idle";
+					this._setInitialState();
 					
 					if (newPolygon === null) {
 						// don't build polygon
@@ -119,10 +118,30 @@ class PolygonDrawerUI {
 		this._canvas.removeEventListener("mousedown", this._mouseDownEventListener);
 		this._canvas.removeEventListener("mouseup", this._mouseUpEventListener);
 		this._canvas.removeEventListener("mousemove", this._mouseMoveEventListener);
+		
+		const needSendAbortedMessage = (this._currentPoints.length > 0);
+		this._setInitialState();
+		if (needSendAbortedMessage) {
+			this._fireEvent("polygonAborted", null);
+		}
 	}
 	
 	getHelperObjects() {
-		return this._currentPoints;
+		// Create line
+		const lines = [];
+		for (let i = 1; i < this._currentPoints.length; i++) {
+			lines.push(new Line(
+				this._currentPoints[i - 1],
+				this._currentPoints[i],
+				this.color
+			));
+		}
+		return lines;
+	}
+	
+	_setInitialState() {
+		this._currentPoints = [];
+		this._status = "idle";
 	}
 	
 }
