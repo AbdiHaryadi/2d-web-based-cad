@@ -86,9 +86,11 @@ function init() {
         objectList.push(line);
         render();
       });
+
       lineDrawerUI.listen("lineAborted", () => {
         render();
       });
+
       lineDrawerUI.listen("endPointCreated", () => {
         render();
       });
@@ -99,9 +101,11 @@ function init() {
         objectList.push(square);
         render();
       });
+
       squareDrawerUI.listen("squareAborted", () => {
         render();
       });
+
       squareDrawerUI.listen("endPointCreated", () => {
         render();
       });
@@ -175,18 +179,23 @@ function init() {
       vertexBtn.addEventListener("click", function () {
         changeTool("vertex");
       });
+
       lineBtn.addEventListener("click", function () {
         changeTool("line");
       });
+
       squareBtn.addEventListener("click", function () {
         changeTool("square");
       });
+
       rectangleBtn.addEventListener("click", function () {
         changeTool("rectangle");
       });
+
       polygonBtn.addEventListener("click", function () {
         changeTool("polygon");
       });
+
       pickerBtn.addEventListener("click", function () {
         changeTool("picker");
       });
@@ -201,11 +210,11 @@ function init() {
       saveBtn.addEventListener("click", function () {
         saveFile(objectList);
       });
-	  
+
       loadBtn.addEventListener("click", function () {
-        loadFile(newObjectList => {
+        loadFile((newObjectList) => {
           objectList = newObjectList;
-		  render();
+          render();
         });
       });
 

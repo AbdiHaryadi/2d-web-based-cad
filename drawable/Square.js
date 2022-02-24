@@ -39,7 +39,7 @@ class Square {
 
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
   }
-  
+
   toJSON() {
     return SquareConverter.toJSON(this);
   }

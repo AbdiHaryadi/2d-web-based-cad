@@ -77,7 +77,7 @@ class Point2D {
 
     gl.drawArrays(gl.POINTS, 0, 1);
   }
-  
+
   toJSON() {
     return Point2DConverter.toJSON(this);
   }
