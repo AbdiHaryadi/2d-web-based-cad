@@ -173,7 +173,7 @@ function init() {
       polygonDrawerUI.listen("pointCreated", (point) => {
         render();
       });
-      
+
       polygonDrawerUI.listen("pointUpdated", (point) => {
         render();
       });
@@ -333,7 +333,7 @@ function init() {
       polygonBtn.addEventListener("mouseover", function () {
         showHelpBox(
           "Polygon",
-          "Drag once to make a starting line then click wherever to make a vertex and then close the polygon to save it."
+          "Click  once to make a starting point then click wherever to make a vertex and then close the polygon to save it."
         );
       });
 
