@@ -18,6 +18,23 @@ class Square {
     return [p1.x, p1.y, pdiag[0], p1.y, pdiag[0], pdiag[1], p1.x, pdiag[1]];
   }
 
+  getNearestDistance(chosenpoint) {
+    var idx_nearest = -1;
+    var nearest = 999;
+    var points = this.getArray();
+    var list_points = [];
+    for (var i = 0; i < points.length; i += 2) {
+      var point = new Point2D(points[i], points[i + 1])
+      list_points.push(point);
+      var distance = point.distance(chosenpoint);
+      if (distance < nearest) {
+        idx_nearest = Math.floor(i / 2);
+        nearest = distance;
+      }
+    }
+    return [nearest, list_points[idx_nearest], list_points[(idx_nearest + 2) % 4]];
+  }
+
   render(gl, vertex_buffer, color_buffer) {
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
     gl.bufferData(
