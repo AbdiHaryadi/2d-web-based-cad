@@ -1,3 +1,22 @@
 canvas {
   border: 2px solid black;
 }
+
+.row {
+  display: flex;
+}
+
+.left-column {
+}
+
+.right-column {
+  margin-left: auto;
+  width: 24rem;
+}
+
+#objectList {
+  padding: 0.5rem;
+  overflow-y: scroll;
+  height: 88vh;
+  border: 1px solid black;
+}

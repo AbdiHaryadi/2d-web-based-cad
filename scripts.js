@@ -72,14 +72,15 @@ function init() {
       clear(); // Harus ada setiap render!
 
       var tool = "";
-      drawing = false;
+      var drawing = false;
 
       // Shapes and colors
-      var currentColor = [0, 0.5, 1]; // Sistem 0..1
+      var currentColor = [1, 0, 0]; // Sistem 0..1
       let objectList = [];
       let tempObjectList = [];
 
       // UI
+
       // Line
       const lineDrawerUI = new LineDrawerUI(canvas);
       lineDrawerUI.listen("lineCreated", (line) => {
@@ -122,10 +123,12 @@ function init() {
       polygonDrawerUI.listen("pointCreated", (point) => {
         render();
       });
+
       polygonDrawerUI.listen("polygonCreated", (polygon) => {
         objectList.push(polygon);
         render();
       });
+
       polygonDrawerUI.listen("polygonAborted", () => {
         render();
       });
@@ -138,6 +141,7 @@ function init() {
       };
 
       // Bind color to currentColor
+      // TODO
       Object.entries(uiMap).forEach(([_, ui]) => {
         ui.color = currentColor;
       });
@@ -150,7 +154,7 @@ function init() {
       var squareBtn = document.getElementById("squareBtn");
       var rectangleBtn = document.getElementById("rectangleBtn");
       var polygonBtn = document.getElementById("polygonBtn");
-      var pickerBtn = document.getElementById("pickerBtn");
+      var pickerBtn = document.getElementById("pickerBtn0");
       var clearBtn = document.getElementById("clearBtn");
       var helpBtn = document.getElementById("helpBtn");
       var saveBtn = document.getElementById("saveBtn");
@@ -196,17 +200,20 @@ function init() {
         changeTool("polygon");
       });
 
-      pickerBtn.addEventListener("click", function () {
+      pickerBtn0.addEventListener("change", function () {
         changeTool("picker");
+        currentColor = hex2rgb(pickerBtn.value);
       });
 
       clearBtn.addEventListener("click", function () {
         changeTool("");
         clear();
         objectList = [];
+        printObjects();
       });
 
       helpBtn.addEventListener("click", function () {});
+
       saveBtn.addEventListener("click", function () {
         saveFile(objectList);
       });
@@ -226,6 +233,28 @@ function init() {
         }
       });
 
+      function hex2rgb(hex) {
+        hex = hex.slice(1);
+        const r = parseInt(hex.slice(0, 2), 16) / 255;
+        const g = parseInt(hex.slice(2, 4), 16) / 255;
+        const b = parseInt(hex.slice(4, 6), 16) / 255;
+        return [r, g, b];
+      }
+
+      function value2hex(val) {
+        var hex = (val * 255).toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+      }
+
+      function rgb2hex(rgb) {
+        return (
+          "#" +
+          value2hex(rgb.at(0)) +
+          value2hex(rgb.at(1)) +
+          value2hex(rgb.at(2))
+        );
+      }
+
       function getCurrentUIHelperObjects() {
         if (tool in uiMap) {
           // defined
@@ -237,17 +266,57 @@ function init() {
 
       function render() {
         clear();
-        objectList.forEach((obj) =>
-          obj.render(gl, vertex_buffer, color_buffer)
-        );
+        objectList
+          .slice()
+          .reverse()
+          .forEach((obj) => obj.render(gl, vertex_buffer, color_buffer));
         getCurrentUIHelperObjects().forEach((obj) =>
           obj.render(gl, vertex_buffer, color_buffer)
         );
+        printObjects();
       }
 
       // clear canvas
       function clear() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      }
+
+      function printObjects() {
+        var list = document.getElementById("objectList");
+        list.innerHTML = "";
+        // print for each object in list as items
+        // each item has options for:
+        // - kalo resize/scale muncul titik aja buat ngatur yeah?
+        var idx = 1;
+
+        objectList.forEach((element) => {
+          const color = rgb2hex(element.color);
+          const item = `
+            <div style="background-color: #EEE; padding: 0.5rem; margin-bottom: 0.5rem;">
+              <h3 style="padding: 0; margin: 0 0 0.5rem 0;">${
+                "Object " + idx
+              }</h3>
+              <input type="color" value="${color}" id="${"pickerBtn" + idx}" />
+              <button id="${"moveBtn" + idx}">Move</button>
+              <button id="${"resizeBtn" + idx}">Resize</button>
+              <button id="${"deleteBtn" + idx}">Delete</button>
+            </div>
+          `;
+          list.innerHTML += item;
+          idx++;
+        });
+
+        var pickerBtns = document.querySelectorAll(
+          "[id^='pickerBtn']:not([id$='pickerBtn0'])"
+        );
+
+        for (let i = 0; i < pickerBtns.length; i++) {
+          pickerBtns[i].addEventListener("change", function () {
+            changeTool("picker");
+            objectList[i].color = hex2rgb(pickerBtns[i].value);
+            render();
+          });
+        }
       }
     }
   }
