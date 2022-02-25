@@ -8,26 +8,38 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div id="toolbar">
-      <button id="vertexBtn">Vertex</button>
-      <button id="lineBtn">Line</button>
-      <button id="squareBtn">Square</button>
-      <button id="rectangleBtn">Rectangle</button>
-      <button id="polygonBtn">Polygon</button>
-      <button id="pickerBtn">Color Picker</button>
-      <button id="clearBtn">Clear</button>
-      <button id="helpBtn">Help</button>
-      <p>Current tool: <span id="currentTool"></span></p>
-      <p>Color: <span id="currentColor"></span></p>
-      <button id="saveBtn">Save</button>
-      <button id="loadBtn">Load</button>
-      <br />
-      <br />
+    <div class="row">
+      <div class="left-column">
+        <h1>2D Web-Based CAD</h1>
+        <div id="toolbar">
+          <button id="vertexBtn">Vertex</button>
+          <button id="lineBtn">Line</button>
+          <button id="squareBtn">Square</button>
+          <button id="rectangleBtn">Rectangle</button>
+          <button id="polygonBtn">Polygon</button>
+          <input type="color" value="#ff0000" id="pickerBtn0" />
+          <button id="clearBtn">Clear</button>
+          <br />
+          <br />
+          <button id="saveBtn">Save</button>
+          <button id="loadBtn">Load</button>
+          <button id="helpBtn">Help</button>
+          <br />
+          <br />
+        </div>
+        <canvas id="gl-canvas" width="512" height="512">
+          <!--Fallback message-->
+          Keliatannya perambanmu tidak mendukung WebGL. :(
+        </canvas>
+        <p>
+          Current tool: <strong><span id="currentTool"></span></strong>
+        </p>
+      </div>
+      <div class="right-column">
+        <h2>Object List</h2>
+        <div class="list" id="objectList"></div>
+      </div>
     </div>
-    <canvas id="gl-canvas" width="512" height="512">
-      <!--Fallback message-->
-      Keliatannya perambanmu tidak mendukung WebGL. :(
-    </canvas>
     <script type="text/javascript" src="drawable/Line.js"></script>
     <script type="text/javascript" src="drawable/Point2D.js"></script>
     <script type="text/javascript" src="drawable/Polygon2D.js"></script>
