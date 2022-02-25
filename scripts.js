@@ -118,6 +118,14 @@ function init() {
         render();
       });
 
+      rectangleDrawerUI.listen("rectangleAborted", () => {
+        render();
+      });
+
+      rectangleDrawerUI.listen("endPointCreated", () => {
+        render();
+      });
+
       // Polygon
       const polygonDrawerUI = new PolygonDrawerUI(canvas);
       polygonDrawerUI.listen("pointCreated", (point) => {
@@ -270,13 +278,13 @@ function init() {
 
       function render() {
         clear();
+        getCurrentUIHelperObjects().forEach((obj) =>
+          obj.render(gl, vertex_buffer, color_buffer)
+        );
         objectList
           .slice()
           .reverse()
           .forEach((obj) => obj.render(gl, vertex_buffer, color_buffer));
-        getCurrentUIHelperObjects().forEach((obj) =>
-          obj.render(gl, vertex_buffer, color_buffer)
-        );
         printObjects();
       }
 

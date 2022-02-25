@@ -3,31 +3,45 @@ class RectangleDrawerUI {
     this._canvas = canvas;
     this._callbackFunctions = {
       rectangleCreated: [],
+      startPointCreated: [],
+      endPointCreated: [],
+      rectangleAborted: [],
     };
 
     this._drawing = false;
-    this._vertexStart = null;
-    this._vertexEnd = null;
+    this._start_point = null;
+    this._end_point = null;
     this.color = [0, 0, 0];
 
-    this._mouseClickEventListener = (event) => {
+    this._mouseDownEventListener = (event) => {
       if (this._drawing) {
-        this._vertexEnd = this._getNewPointFromMouseEvent(event);
-        if (!this._vertexStart.equals(this._vertexEnd)) {
-          this._drawing = false;
+        if (this._end_point == null) {
+          this._fireEvent("rectangleAborted", null);
+        } else {
           this._fireEvent(
             "rectangleCreated",
             new Rectangle(
-              this._vertexStart,
-              this._vertexEnd,
+              this._start_point,
+              this._end_point,
               this.color.slice()
             )
           );
         }
+
+        this._drawing = false;
+        this._start_point = null;
+        this._end_point = null;
       } else {
         this._drawing = true;
-        this._vertexStart = this._getNewPointFromMouseEvent(event);
-        this._drawing = true;
+        this._start_point = this._getNewPointFromMouseEvent(event);
+        this._fireEvent("startPointCreated", this._start_point);
+      }
+    };
+
+    this._mouseMoveEventListener = (event) => {
+      if (this._drawing) {
+        this._end_point = this._getNewPointFromMouseEvent(event);
+        this._fireEvent("endPointCreated", this._end_point);
       }
     };
   }
@@ -48,14 +62,20 @@ class RectangleDrawerUI {
   }
 
   activate() {
-    this._canvas.addEventListener("click", this._mouseClickEventListener);
+    this._canvas.addEventListener("mousedown", this._mouseDownEventListener);
+    this._canvas.addEventListener("mousemove", this._mouseMoveEventListener);
   }
 
   deactivate() {
-    this._canvas.removeEventListener("click", this._mouseClickEventListener);
+    this._canvas.removeEventListener("mousedown", this._mouseDownEventListener);
+    this._canvas.removeEventListener("mousemove", this._mouseMoveEventListener);
   }
 
   getHelperObjects() {
-    return [];
+    if (this._end_point != null) {
+      return [new Rectangle(this._start_point, this._end_point, this.color)];
+    } else {
+      return [];
+    }
   }
 }
