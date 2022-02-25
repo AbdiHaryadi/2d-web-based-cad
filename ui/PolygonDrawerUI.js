@@ -5,6 +5,7 @@ class PolygonDrawerUI {
       pointCreated: [],
       polygonCreated: [],
       polygonAborted: [],
+      pointUpdated: [],
     };
 
     this._epsilon = 0.05;
@@ -12,71 +13,71 @@ class PolygonDrawerUI {
 
     this._setInitialState();
 
-    this._mouseDownEventListener = (event) => {
-      if (this._currentPoints.length === 0) {
-        // Create first point and commit
-        const newPoint = this._addNewPointToCurentPointsFromMouseEvent(event);
-        this._fireEvent("pointCreated", newPoint);
-      }
-
-      if (this._status === "idle") {
-        // Create new point
+    this._mouseClickEventListener = (event) => {
+      if (this._status === "waitingForStartPoint") {
+        this._status = "creatingPoints";
+        
+        // Create and commit first point
         this._addNewPointToCurentPointsFromMouseEvent(event);
+        this._commitLatestPoint();
+        
+        // Create second, uncommited point
+        this._addNewPointToCurentPointsFromMouseEvent(event);
+        
       } else {
-        // Continue the latest point
-        this._updateLatestPointFromMouseEvent(event);
-      }
-
-      this._status = "movingPoint";
-    };
-
-    this._mouseUpEventListener = (event) => {
-      if (this._status === "movingPoint") {
-        const firstPoint = this._currentPoints[0];
-        const latestPoint = this._currentPoints[this._currentPoints.length - 1];
-        if (latestPoint.distance(firstPoint) < this._epsilon) {
-          // Abort the latest point
-          this._currentPoints.pop();
-
-          let newPolygon = null;
-
-          if (this._currentPoints.length >= 3) {
-            newPolygon = new Polygon2D(
-              this._currentPoints.slice(),
-              this.color.slice()
-            );
-          }
-
-          // Clear
-          this._setInitialState();
-
-          if (newPolygon === null) {
-            // don't build polygon
-            this._fireEvent("polygonAborted", null);
-          } else {
+        if (this._latestPointPutNearFirstPoint()) {
+          this._abortLatestPoint();
+          
+          if (this._hasEnoughPointsToBuildPolygon()) {
+            const newPolygon = this._createNewPolygon();
+            this._setInitialState();
             this._fireEvent("polygonCreated", newPolygon);
-          }
-        } else {
-          const secondLatestPoint =
-            this._currentPoints[this._currentPoints.length - 2];
-          if (latestPoint.distance(secondLatestPoint) < this._epsilon) {
-            // Abort the latestPoint
-            this._currentPoints.pop();
+            
           } else {
-            // Commit the latest point
-            this._fireEvent("pointCreated", latestPoint);
+            this._setInitialState();
+            this._fireEvent("polygonAborted", null);
           }
-        }
+          
+        } else if (!this._latestPointPutNearSecondLatestPoint()) {
+          this._commitLatestPoint();
+          this._addNewPointToCurentPointsFromMouseEvent(event);
+          
+        } // else: ignore that click
       }
-
-      this._status = "idle";
     };
 
     this._mouseMoveEventListener = (event) => {
-      if (this._status === "movingPoint") {
+      if (this._status === "creatingPoints") {
         this._updateLatestPointFromMouseEvent(event);
       } // else: do nothing
     };
+  }
+  
+  _createNewPolygon() {
+    return new Polygon2D(
+      this._currentPoints.slice(),
+      this.color.slice()
+    );
+  }
+  
+  _hasEnoughPointsToBuildPolygon() {
+    return this._currentPoints.length >= 3;
+  }
+  
+  _commitLatestPoint() {
+    this._fireEvent("pointCreated", this._currentPoints[this._currentPoints.length - 1]);
+  }
+  
+  _abortLatestPoint() {
+    this._currentPoints.pop();
+  }
+  
+  _latestPointPutNearFirstPoint() {
+    return this._currentPoints[this._currentPoints.length - 1].distance(this._currentPoints[0]) < this._epsilon;
+  }
+  
+  _latestPointPutNearSecondLatestPoint() {
+    return this._currentPoints[this._currentPoints.length - 1].distance(this._currentPoints[this._currentPoints.length - 2]) < this._epsilon;
   }
 
   _getWebGLCoordinateFromMouseEvent(event) {
@@ -99,6 +100,7 @@ class PolygonDrawerUI {
     const [newX, newY] = this._getWebGLCoordinateFromMouseEvent(event);
     latestPoint.x = newX;
     latestPoint.y = newY;
+    this._fireEvent("pointUpdated", latestPoint);
   }
 
   listen(event, callback) {
@@ -110,14 +112,12 @@ class PolygonDrawerUI {
   }
 
   activate() {
-    this._canvas.addEventListener("mousedown", this._mouseDownEventListener);
-    this._canvas.addEventListener("mouseup", this._mouseUpEventListener);
+    this._canvas.addEventListener("click", this._mouseClickEventListener);
     this._canvas.addEventListener("mousemove", this._mouseMoveEventListener);
   }
 
   deactivate() {
-    this._canvas.removeEventListener("mousedown", this._mouseDownEventListener);
-    this._canvas.removeEventListener("mouseup", this._mouseUpEventListener);
+    this._canvas.removeEventListener("click", this._mouseClickEventListener);
     this._canvas.removeEventListener("mousemove", this._mouseMoveEventListener);
 
     const needSendAbortedMessage = this._currentPoints.length > 0;
@@ -128,7 +128,6 @@ class PolygonDrawerUI {
   }
 
   getHelperObjects() {
-    // Create line
     const lines = [];
     for (let i = 1; i < this._currentPoints.length; i++) {
       lines.push(
@@ -140,6 +139,6 @@ class PolygonDrawerUI {
 
   _setInitialState() {
     this._currentPoints = [];
-    this._status = "idle";
+    this._status = "waitingForStartPoint";
   }
 }
