@@ -203,6 +203,10 @@ function init() {
       pickerBtn0.addEventListener("change", function () {
         changeTool("picker");
         currentColor = hex2rgb(pickerBtn.value);
+
+        Object.entries(uiMap).forEach(([_, ui]) => {
+          ui.color = currentColor;
+        });
       });
 
       clearBtn.addEventListener("click", function () {
@@ -283,11 +287,8 @@ function init() {
 
       function printObjects() {
         var list = document.getElementById("objectList");
-        list.innerHTML = "";
-        // print for each object in list as items
-        // each item has options for:
-        // - kalo resize/scale muncul titik aja buat ngatur yeah?
         var idx = 1;
+        list.innerHTML = "";
 
         objectList.forEach((element) => {
           const color = rgb2hex(element.color);
