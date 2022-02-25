@@ -81,7 +81,7 @@ class SquareResizeUI {
 	}
 	
 	deactivate() {
-		this._fireEvent("resizeEnded", this._chosen_square);
+		if (this._moving) this._fireEvent("moveEnded", this._chosen_square);
 		this.reset();
 		this._canvas.removeEventListener("mousedown", this._mouseDownEventListener);
 		this._canvas.removeEventListener("mousemove", this._mouseMoveEventListener);
