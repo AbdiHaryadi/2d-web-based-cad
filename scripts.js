@@ -201,7 +201,6 @@ function init() {
       // End of UI
 
       // Button listeners
-      var vertexBtn = document.getElementById("vertexBtn");
       var lineBtn = document.getElementById("lineBtn");
       var squareBtn = document.getElementById("squareBtn");
       var rectangleBtn = document.getElementById("rectangleBtn");
@@ -232,10 +231,6 @@ function init() {
           drawing = false;
         }
       }
-
-      vertexBtn.addEventListener("click", function () {
-        changeTool("vertex");
-      });
 
       lineBtn.addEventListener("click", function () {
         changeTool("line");
@@ -298,17 +293,6 @@ function init() {
       });
 
       // help event listeners
-      vertexBtn.addEventListener("mouseover", function () {
-        showHelpBox(
-          "Vertex",
-          "Click the canvas where you want to add the vertex."
-        );
-      });
-
-      vertexBtn.addEventListener("mouseout", function () {
-        hideHelpBox();
-      });
-
       lineBtn.addEventListener("mouseover", function () {
         showHelpBox(
           "Line",
@@ -358,6 +342,28 @@ function init() {
       });
 
       pickerBtn0.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      moveLineBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Move Line",
+          "Click one end of the line you want to move and click again where you want to move it to."
+        );
+      });
+
+      moveLineBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      resizeSquareBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Resize Square",
+          "Click one vertex of the square you want to resize and click again to finished resizing the square."
+        );
+      });
+
+      resizeSquareBtn.addEventListener("mouseout", function () {
         hideHelpBox();
       });
 
@@ -463,9 +469,6 @@ function init() {
                 "Object " + idx
               }</h3>
               <input type="color" value="${color}" id="${"pickerBtn" + idx}" />
-              <button id="${"moveBtn" + idx}">Move</button>
-              <button id="${"resizeBtn" + idx}">Resize</button>
-              <button id="${"deleteBtn" + idx}">Delete</button>
             </div>
           `;
           list.innerHTML += item;
