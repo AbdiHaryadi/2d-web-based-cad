@@ -72,23 +72,26 @@ function init() {
       clear(); // Harus ada setiap render!
 
       var tool = "";
-      drawing = false;
+      var drawing = false;
 
       // Shapes and colors
-      var currentColor = [0, 0.5, 1]; // Sistem 0..1
+      var currentColor = [1, 0, 0]; // Sistem 0..1
       let objectList = [];
       let tempObjectList = [];
 
       // UI
+
       // Line
       const lineDrawerUI = new LineDrawerUI(canvas);
       lineDrawerUI.listen("lineCreated", (line) => {
         objectList.push(line);
         render();
       });
+
       lineDrawerUI.listen("lineAborted", () => {
         render();
       });
+
       lineDrawerUI.listen("endPointCreated", () => {
         render();
       });
@@ -116,9 +119,11 @@ function init() {
         objectList.push(square);
         render();
       });
+
       squareDrawerUI.listen("squareAborted", () => {
         render();
       });
+
       squareDrawerUI.listen("endPointCreated", () => {
         render();
       });
@@ -147,15 +152,25 @@ function init() {
         render();
       });
 
+      rectangleDrawerUI.listen("rectangleAborted", () => {
+        render();
+      });
+
+      rectangleDrawerUI.listen("endPointCreated", () => {
+        render();
+      });
+
       // Polygon
       const polygonDrawerUI = new PolygonDrawerUI(canvas);
       polygonDrawerUI.listen("pointCreated", (point) => {
         render();
       });
+
       polygonDrawerUI.listen("polygonCreated", (polygon) => {
         objectList.push(polygon);
         render();
       });
+
       polygonDrawerUI.listen("polygonAborted", () => {
         render();
       });
@@ -170,6 +185,7 @@ function init() {
       };
 
       // Bind color to currentColor
+      // TODO
       Object.entries(uiMap).forEach(([_, ui]) => {
         ui.color = currentColor;
       });
@@ -184,9 +200,8 @@ function init() {
       var polygonBtn = document.getElementById("polygonBtn");
       var moveLineBtn = document.getElementById("moveLineBtn");
       var resizeSquareBtn = document.getElementById("resizeSquareBtn");
-      var pickerBtn = document.getElementById("pickerBtn");
+      var pickerBtn = document.getElementById("pickerBtn0");
       var clearBtn = document.getElementById("clearBtn");
-      var helpBtn = document.getElementById("helpBtn");
       var saveBtn = document.getElementById("saveBtn");
       var loadBtn = document.getElementById("loadBtn");
 
@@ -213,15 +228,19 @@ function init() {
       vertexBtn.addEventListener("click", function () {
         changeTool("vertex");
       });
+
       lineBtn.addEventListener("click", function () {
         changeTool("line");
       });
+
       squareBtn.addEventListener("click", function () {
         changeTool("square");
       });
+
       rectangleBtn.addEventListener("click", function () {
         changeTool("rectangle");
       });
+
       polygonBtn.addEventListener("click", function () {
         changeTool("polygon");
       });
@@ -231,19 +250,33 @@ function init() {
       resizeSquareBtn.addEventListener("click", function (){
         changeTool("resizeSquare");
       })
-      pickerBtn.addEventListener("click", function () {
+      pickerBtn0.addEventListener("change", function () {
         changeTool("picker");
+        currentColor = hex2rgb(pickerBtn.value);
+
+        Object.entries(uiMap).forEach(([_, ui]) => {
+          ui.color = currentColor;
+        });
       });
 
       clearBtn.addEventListener("click", function () {
         changeTool("");
         clear();
         objectList = [];
+        printObjects();
+        hideHelpBox();
       });
 
-      helpBtn.addEventListener("click", function () {});
-      saveBtn.addEventListener("click", function () {});
-      loadBtn.addEventListener("click", function () {});
+      saveBtn.addEventListener("click", function () {
+        saveFile(objectList);
+      });
+
+      loadBtn.addEventListener("click", function () {
+        loadFile((newObjectList) => {
+          objectList = newObjectList;
+          render();
+        });
+      });
 
       canvas.addEventListener("mousemove", () => {
         if (drawing) {
@@ -252,6 +285,116 @@ function init() {
           canvas.style.cursor = "default";
         }
       });
+
+      // help event listeners
+      vertexBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Vertex",
+          "Click the canvas where you want to add the vertex."
+        );
+      });
+
+      vertexBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      lineBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Line",
+          "Click the canvas once where you want to start the line and click the canvas again to end the line."
+        );
+      });
+
+      lineBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      squareBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Square",
+          "Click the canvas once where you want to start making a square and click the canvas again to finish making a square."
+        );
+      });
+
+      squareBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      rectangleBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Rectangle",
+          "Click the canvas once where you want to start making a rectangle and click the canvas again to finish making a rectangle."
+        );
+      });
+
+      rectangleBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      polygonBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Polygon",
+          "Drag once to make a starting line then click wherever to make a vertex and then close the polygon to save it."
+        );
+      });
+
+      polygonBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      pickerBtn0.addEventListener("mouseover", function () {
+        showHelpBox("Color Picker", "Click to pick a new color.");
+      });
+
+      pickerBtn0.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      clearBtn.addEventListener("mouseover", function () {
+        showHelpBox("Clear", "Click to clear the canvas.");
+      });
+
+      clearBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      saveBtn.addEventListener("mouseover", function () {
+        showHelpBox("Save", "Click to save your current canvas.");
+      });
+
+      saveBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      loadBtn.addEventListener("mouseover", function () {
+        showHelpBox("Load", "Click to load a file.");
+      });
+
+      loadBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      function hex2rgb(hex) {
+        hex = hex.slice(1);
+        const r = parseInt(hex.slice(0, 2), 16) / 255;
+        const g = parseInt(hex.slice(2, 4), 16) / 255;
+        const b = parseInt(hex.slice(4, 6), 16) / 255;
+        return [r, g, b];
+      }
+
+      function value2hex(val) {
+        var hex = (val * 255).toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+      }
+
+      function rgb2hex(rgb) {
+        return (
+          "#" +
+          value2hex(rgb.at(0)) +
+          value2hex(rgb.at(1)) +
+          value2hex(rgb.at(2))
+        );
+      }
 
       function getCurrentUIHelperObjects() {
         if (tool in uiMap) {
@@ -264,17 +407,71 @@ function init() {
 
       function render() {
         clear();
-        objectList.forEach((obj) =>
-          obj.render(gl, vertex_buffer, color_buffer)
-        );
         getCurrentUIHelperObjects().forEach((obj) =>
           obj.render(gl, vertex_buffer, color_buffer)
         );
+        objectList
+          .slice()
+          .reverse()
+          .forEach((obj) => obj.render(gl, vertex_buffer, color_buffer));
+        printObjects();
       }
 
       // clear canvas
       function clear() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      }
+
+      // helpbox
+      var helpBox = document.getElementById("helpBox");
+      var helpTitle = document.getElementById("helpTitle");
+      var helpBody = document.getElementById("helpBody");
+
+      function hideHelpBox() {
+        helpBox.style.display = "none";
+        helpTitle.innerHTML = "";
+        helpBody.innerHTML = "";
+      }
+
+      function showHelpBox(title, body) {
+        helpBox.style.display = "block";
+        helpTitle.innerHTML = title;
+        helpBody.innerHTML = body;
+      }
+
+      function printObjects() {
+        var list = document.getElementById("objectList");
+        var idx = 1;
+        list.innerHTML = "";
+
+        objectList.forEach((element) => {
+          const color = rgb2hex(element.color);
+          const item = `
+            <div style="background-color: #EEE; padding: 0.5rem; margin-bottom: 0.5rem;">
+              <h3 style="padding: 0; margin: 0 0 0.5rem 0;">${
+                "Object " + idx
+              }</h3>
+              <input type="color" value="${color}" id="${"pickerBtn" + idx}" />
+              <button id="${"moveBtn" + idx}">Move</button>
+              <button id="${"resizeBtn" + idx}">Resize</button>
+              <button id="${"deleteBtn" + idx}">Delete</button>
+            </div>
+          `;
+          list.innerHTML += item;
+          idx++;
+        });
+
+        var pickerBtns = document.querySelectorAll(
+          "[id^='pickerBtn']:not([id$='pickerBtn0'])"
+        );
+
+        for (let i = 0; i < pickerBtns.length; i++) {
+          pickerBtns[i].addEventListener("change", function () {
+            changeTool("picker");
+            objectList[i].color = hex2rgb(pickerBtns[i].value);
+            render();
+          });
+        }
       }
     }
   }

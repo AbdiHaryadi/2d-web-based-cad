@@ -30,4 +30,8 @@ class Line {
 
     gl.drawArrays(gl.LINES, 0, 2);
   }
+
+  toJSON() {
+    return LineConverter.toJSON(this);
+  }
 }

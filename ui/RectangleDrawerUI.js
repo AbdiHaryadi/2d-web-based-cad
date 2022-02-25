@@ -1,58 +1,81 @@
 class RectangleDrawerUI {
-	constructor(canvas) {
-		this._canvas = canvas;
-		this._callbackFunctions = {
-			"rectangleCreated": []
-		};
-		
-		this._drawing = false;
-		this._vertexStart = null;
-		this._vertexEnd = null;
-		this.color = [0, 0, 0];
-		
-		this._mouseClickEventListener = event => {
-			if (this._drawing) {
-				this._vertexEnd = this._getNewPointFromMouseEvent(event);
-				if (!this._vertexStart.equals(this._vertexEnd)) {
-					this._drawing = false;
-					this._fireEvent(
-						"rectangleCreated",
-						new Rectangle(this._vertexStart, this._vertexEnd, this.color.slice())
-					);
-				}
-			} else {
-				this._drawing = true;
-				this._vertexStart = this._getNewPointFromMouseEvent(event);
-				this._drawing = true;
-			}
-		}
-	}
-	
-	_getNewPointFromMouseEvent(event) {
-		// Return Point based on WebGL coordinate from mouse position (determined by event)
-		const newX = 2 * event.offsetX / this._canvas.width - 1;
-		const newY = -2 * event.offsetY / this._canvas.height + 1;
-		const newPoint = new Point2D(newX, newY);
-		return newPoint;
-	}
-	
-	listen(event, callback) {
-		this._callbackFunctions[event].push(callback);
-	}
-	
-	_fireEvent(event, data) {
-		this._callbackFunctions[event].forEach(callback => callback(data));
-	}
-	
-	activate() {
-		this._canvas.addEventListener("click", this._mouseClickEventListener);
-	}
-	
-	deactivate() {
-		this._canvas.removeEventListener("click", this._mouseClickEventListener);
-	}
-	
-	getHelperObjects() {
-		return [];
-	}
+  constructor(canvas) {
+    this._canvas = canvas;
+    this._callbackFunctions = {
+      rectangleCreated: [],
+      startPointCreated: [],
+      endPointCreated: [],
+      rectangleAborted: [],
+    };
+
+    this._drawing = false;
+    this._start_point = null;
+    this._end_point = null;
+    this.color = [0, 0, 0];
+
+    this._mouseDownEventListener = (event) => {
+      if (this._drawing) {
+        if (this._end_point == null) {
+          this._fireEvent("rectangleAborted", null);
+        } else {
+          this._fireEvent(
+            "rectangleCreated",
+            new Rectangle(
+              this._start_point,
+              this._end_point,
+              this.color.slice()
+            )
+          );
+        }
+
+        this._drawing = false;
+        this._start_point = null;
+        this._end_point = null;
+      } else {
+        this._drawing = true;
+        this._start_point = this._getNewPointFromMouseEvent(event);
+        this._fireEvent("startPointCreated", this._start_point);
+      }
+    };
+
+    this._mouseMoveEventListener = (event) => {
+      if (this._drawing) {
+        this._end_point = this._getNewPointFromMouseEvent(event);
+        this._fireEvent("endPointCreated", this._end_point);
+      }
+    };
+  }
+
+  _getNewPointFromMouseEvent(event) {
+    // Return Point based on WebGL coordinate from mouse position (determined by event)
+    const newX = (2 * event.offsetX) / this._canvas.width - 1;
+    const newY = (-2 * event.offsetY) / this._canvas.height + 1;
+    return new Point2D(newX, newY);
+  }
+
+  listen(event, callback) {
+    this._callbackFunctions[event].push(callback);
+  }
+
+  _fireEvent(event, data) {
+    this._callbackFunctions[event].forEach((callback) => callback(data));
+  }
+
+  activate() {
+    this._canvas.addEventListener("mousedown", this._mouseDownEventListener);
+    this._canvas.addEventListener("mousemove", this._mouseMoveEventListener);
+  }
+
+  deactivate() {
+    this._canvas.removeEventListener("mousedown", this._mouseDownEventListener);
+    this._canvas.removeEventListener("mousemove", this._mouseMoveEventListener);
+  }
+
+  getHelperObjects() {
+    if (this._end_point != null) {
+      return [new Rectangle(this._start_point, this._end_point, this.color)];
+    } else {
+      return [];
+    }
+  }
 }

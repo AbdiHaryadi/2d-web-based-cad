@@ -248,4 +248,8 @@ class Polygon2D {
 
     gl.drawArrays(gl.TRIANGLES, 0, pointList.length);
   }
+
+  toJSON() {
+    return Polygon2DConverter.toJSON(this);
+  }
 }

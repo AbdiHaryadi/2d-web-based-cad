@@ -35,4 +35,8 @@ class Rectangle {
 
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
   }
+
+  toJSON() {
+    return RectangleConverter.toJSON(this);
+  }
 }
