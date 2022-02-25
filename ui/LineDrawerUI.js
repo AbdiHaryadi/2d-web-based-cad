@@ -46,8 +46,7 @@ class LineDrawerUI {
     // Return Point based on WebGL coordinate from mouse position (determined by event)
     const newX = (2 * event.offsetX) / this._canvas.width - 1;
     const newY = (-2 * event.offsetY) / this._canvas.height + 1;
-    const newPoint = new Point2D(newX, newY);
-    return newPoint;
+    return new Point2D(newX, newY);
   }
 
   listen(event, callback) {

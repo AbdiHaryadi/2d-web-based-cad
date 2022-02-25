@@ -13,8 +13,6 @@ class PolygonDrawerUI {
     this._setInitialState();
 
     this._mouseDownEventListener = (event) => {
-      let newPoint;
-
       if (this._currentPoints.length === 0) {
         // Create first point and commit
         const newPoint = this._addNewPointToCurentPointsFromMouseEvent(event);
