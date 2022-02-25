@@ -12,7 +12,6 @@
       <div class="left-column">
         <h1>2D Web-Based CAD</h1>
         <div id="toolbar">
-          <button id="vertexBtn">Vertex</button>
           <button id="lineBtn">Line</button>
           <button id="squareBtn">Square</button>
           <button id="rectangleBtn">Rectangle</button>
@@ -31,24 +30,30 @@
         <p style="margin-top: 0">
           Current tool: <strong><span id="currentTool"></span></strong>
         </p>
-        <canvas id="gl-canvas" width="512" height="512">
-          <!--Fallback message-->
-          Keliatannya perambanmu tidak mendukung WebGL. :(
-        </canvas>
-        <div
-          id="helpBox"
-          style="
-            background-color: #eee;
-            padding: 0.5rem;
-            max-width: 501px;
-            margin-top: 0.5rem;
-            display: none;
-          "
-        >
-          <h3 style="margin: 0">
-            <span id="helpTitle"></span>
-          </h3>
-          <p id="helpBody" style="margin-bottom: 0"></p>
+        <div class="row">
+          <div class="column">
+            <canvas id="gl-canvas" width="512" height="512">
+              <!--Fallback message-->
+              Keliatannya perambanmu tidak mendukung WebGL. :(
+            </canvas>
+          </div>
+          <div class="column">
+            <div
+              id="helpBox"
+              style="
+                background-color: #eee;
+                padding: 0.5rem;
+                width: 320px;
+                margin-left: 0.5rem;
+                display: none;
+              "
+            >
+              <h3 style="margin: 0">
+                <span id="helpTitle"></span>
+              </h3>
+              <p id="helpBody" style="margin-bottom: 0"></p>
+            </div>
+          </div>
         </div>
       </div>
       <div class="right-column">

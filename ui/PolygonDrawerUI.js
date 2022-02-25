@@ -16,32 +16,28 @@ class PolygonDrawerUI {
     this._mouseClickEventListener = (event) => {
       if (this._status === "waitingForStartPoint") {
         this._status = "creatingPoints";
-        
+
         // Create and commit first point
         this._addNewPointToCurentPointsFromMouseEvent(event);
         this._commitLatestPoint();
-        
+
         // Create second, uncommited point
         this._addNewPointToCurentPointsFromMouseEvent(event);
-        
       } else {
         if (this._latestPointPutNearFirstPoint()) {
           this._abortLatestPoint();
-          
+
           if (this._hasEnoughPointsToBuildPolygon()) {
             const newPolygon = this._createNewPolygon();
             this._setInitialState();
             this._fireEvent("polygonCreated", newPolygon);
-            
           } else {
             this._setInitialState();
             this._fireEvent("polygonAborted", null);
           }
-          
         } else if (!this._latestPointPutNearSecondLatestPoint()) {
           this._commitLatestPoint();
           this._addNewPointToCurentPointsFromMouseEvent(event);
-          
         } // else: ignore that click
       }
     };
@@ -52,32 +48,40 @@ class PolygonDrawerUI {
       } // else: do nothing
     };
   }
-  
+
   _createNewPolygon() {
-    return new Polygon2D(
-      this._currentPoints.slice(),
-      this.color.slice()
-    );
+    return new Polygon2D(this._currentPoints.slice(), this.color.slice());
   }
-  
+
   _hasEnoughPointsToBuildPolygon() {
     return this._currentPoints.length >= 3;
   }
-  
+
   _commitLatestPoint() {
-    this._fireEvent("pointCreated", this._currentPoints[this._currentPoints.length - 1]);
+    this._fireEvent(
+      "pointCreated",
+      this._currentPoints[this._currentPoints.length - 1]
+    );
   }
-  
+
   _abortLatestPoint() {
     this._currentPoints.pop();
   }
-  
+
   _latestPointPutNearFirstPoint() {
-    return this._currentPoints[this._currentPoints.length - 1].distance(this._currentPoints[0]) < this._epsilon;
+    return (
+      this._currentPoints[this._currentPoints.length - 1].distance(
+        this._currentPoints[0]
+      ) < this._epsilon
+    );
   }
-  
+
   _latestPointPutNearSecondLatestPoint() {
-    return this._currentPoints[this._currentPoints.length - 1].distance(this._currentPoints[this._currentPoints.length - 2]) < this._epsilon;
+    return (
+      this._currentPoints[this._currentPoints.length - 1].distance(
+        this._currentPoints[this._currentPoints.length - 2]
+      ) < this._epsilon
+    );
   }
 
   _getWebGLCoordinateFromMouseEvent(event) {
