@@ -23,21 +23,30 @@
           <br />
           <button id="saveBtn">Save</button>
           <button id="loadBtn">Load</button>
-          <button id="helpBtn">Help</button>
           <br />
           <br />
         </div>
+        <p style="margin-top: 0">
+          Current tool: <strong><span id="currentTool"></span></strong>
+        </p>
         <canvas id="gl-canvas" width="512" height="512">
           <!--Fallback message-->
           Keliatannya perambanmu tidak mendukung WebGL. :(
         </canvas>
-        <p>
-          Current tool: <strong><span id="currentTool"></span></strong>
-        </p>
-        <div id="helpBox" style="display: none">
-          <p>
-            Help <strong><span id="help"></span></strong>:
-          </p>
+        <div
+          id="helpBox"
+          style="
+            background-color: #eee;
+            padding: 0.5rem;
+            max-width: 501px;
+            margin-top: 0.5rem;
+            display: none;
+          "
+        >
+          <h3 style="margin: 0">
+            <span id="helpTitle"></span>
+          </h3>
+          <p id="helpBody" style="margin-bottom: 0"></p>
         </div>
       </div>
       <div class="right-column">

@@ -164,7 +164,6 @@ function init() {
       var polygonBtn = document.getElementById("polygonBtn");
       var pickerBtn = document.getElementById("pickerBtn0");
       var clearBtn = document.getElementById("clearBtn");
-      var helpBtn = document.getElementById("helpBtn");
       var saveBtn = document.getElementById("saveBtn");
       var loadBtn = document.getElementById("loadBtn");
 
@@ -222,9 +221,8 @@ function init() {
         clear();
         objectList = [];
         printObjects();
+        hideHelpBox();
       });
-
-      helpBtn.addEventListener("click", function () {});
 
       saveBtn.addEventListener("click", function () {
         saveFile(objectList);
@@ -243,6 +241,94 @@ function init() {
         } else {
           canvas.style.cursor = "default";
         }
+      });
+
+      // help event listeners
+      vertexBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Vertex",
+          "Click the canvas where you want to add the vertex."
+        );
+      });
+
+      vertexBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      lineBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Line",
+          "Click the canvas once where you want to start the line and click the canvas again to end the line."
+        );
+      });
+
+      lineBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      squareBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Square",
+          "Click the canvas once where you want to start making a square and click the canvas again to finish making a square."
+        );
+      });
+
+      squareBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      rectangleBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Rectangle",
+          "Click the canvas once where you want to start making a rectangle and click the canvas again to finish making a rectangle."
+        );
+      });
+
+      rectangleBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      polygonBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Polygon",
+          "Drag once to make a starting line then click wherever to make a vertex and then close the polygon to save it."
+        );
+      });
+
+      polygonBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      pickerBtn0.addEventListener("mouseover", function () {
+        showHelpBox("Color Picker", "Click to pick a new color.");
+      });
+
+      pickerBtn0.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      clearBtn.addEventListener("mouseover", function () {
+        showHelpBox("Clear", "Click to clear the canvas.");
+      });
+
+      clearBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      saveBtn.addEventListener("mouseover", function () {
+        showHelpBox("Save", "Click to save your current canvas.");
+      });
+
+      saveBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      loadBtn.addEventListener("mouseover", function () {
+        showHelpBox("Load", "Click to load a file.");
+      });
+
+      loadBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
       });
 
       function hex2rgb(hex) {
@@ -291,6 +377,23 @@ function init() {
       // clear canvas
       function clear() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      }
+
+      // helpbox
+      var helpBox = document.getElementById("helpBox");
+      var helpTitle = document.getElementById("helpTitle");
+      var helpBody = document.getElementById("helpBody");
+
+      function hideHelpBox() {
+        helpBox.style.display = "none";
+        helpTitle.innerHTML = "";
+        helpBody.innerHTML = "";
+      }
+
+      function showHelpBox(title, body) {
+        helpBox.style.display = "block";
+        helpTitle.innerHTML = title;
+        helpBody.innerHTML = body;
       }
 
       function printObjects() {
