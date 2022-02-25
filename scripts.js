@@ -98,17 +98,21 @@ function init() {
 
       // Line Move
       const lineMoveUI = new LineMoveUI(canvas);
+
       lineMoveUI.listen("moveStarted", () => {
         lineMoveUI.getLine(objectList);
         render();
       });
-      lineMoveUI.listen("moveEnded", (line) =>  {
+
+      lineMoveUI.listen("moveEnded", (line) => {
         objectList.push(line);
         render();
       });
+
       lineMoveUI.listen("moveAborted", () => {
         render();
       });
+
       lineMoveUI.listen("lineMoved", () => {
         render();
       });
@@ -130,17 +134,21 @@ function init() {
 
       // Resize Square
       const squareResizeUI = new SquareResizeUI(canvas);
+
       squareResizeUI.listen("resizeStarted", () => {
         squareResizeUI.getSquare(objectList);
         render();
       });
+
       squareResizeUI.listen("resizeEnded", (square) => {
         objectList.push(square);
         render();
       });
+
       squareResizeUI.listen("resizeAborted", () => {
         render();
       });
+
       squareResizeUI.listen("squareResized", () => {
         render();
       });
@@ -244,12 +252,15 @@ function init() {
       polygonBtn.addEventListener("click", function () {
         changeTool("polygon");
       });
+
       moveLineBtn.addEventListener("click", function () {
         changeTool("moveLine");
-      })
-      resizeSquareBtn.addEventListener("click", function (){
+      });
+
+      resizeSquareBtn.addEventListener("click", function () {
         changeTool("resizeSquare");
-      })
+      });
+
       pickerBtn0.addEventListener("change", function () {
         changeTool("picker");
         currentColor = hex2rgb(pickerBtn.value);
