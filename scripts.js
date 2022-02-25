@@ -165,6 +165,10 @@ function init() {
       polygonDrawerUI.listen("pointCreated", (point) => {
         render();
       });
+      
+      polygonDrawerUI.listen("pointUpdated", (point) => {
+        render();
+      });
 
       polygonDrawerUI.listen("polygonCreated", (polygon) => {
         objectList.push(polygon);
