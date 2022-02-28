@@ -9,6 +9,23 @@ class Rectangle {
     return Rectangle.getVertices(this.v1, this.v2);
   }
 
+  getNearestDistance(chosenpoint) {
+    var idx_nearest = -1;
+    var nearest = 999;
+    var points = this.getVertices();
+    var list_points = [];
+    for (var i = 0; i < points.length; i += 2) {
+      var point = new Point2D(points[i], points[i + 1])
+      list_points.push(point);
+      var distance = point.distance(chosenpoint);
+      if (distance < nearest) {
+        idx_nearest = Math.floor(i / 2);
+        nearest = distance;
+      }
+    }
+    return [nearest, list_points[idx_nearest], list_points[(idx_nearest + 2) % 4]];
+  }
+
   static getVertices(v1, v2) {
     // TODO: kalau dirotasi gabener
     return [v1.x, v1.y, v1.x, v2.y, v2.x, v2.y, v2.x, v1.y];
