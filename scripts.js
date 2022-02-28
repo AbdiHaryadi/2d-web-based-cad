@@ -212,6 +212,7 @@ function init() {
       var moveLineBtn = document.getElementById("moveLineBtn");
       var resizeSquareBtn = document.getElementById("resizeSquareBtn");
       var pickerBtn = document.getElementById("pickerBtn0");
+      var undoBtn = document.getElementById("undoBtn");
       var clearBtn = document.getElementById("clearBtn");
       var saveBtn = document.getElementById("saveBtn");
       var loadBtn = document.getElementById("loadBtn");
@@ -267,6 +268,11 @@ function init() {
         Object.entries(uiMap).forEach(([_, ui]) => {
           ui.color = currentColor;
         });
+      });
+
+      undoBtn.addEventListener("click", function () {
+        objectList.pop();
+        render();
       });
 
       clearBtn.addEventListener("click", function () {
@@ -368,6 +374,14 @@ function init() {
       });
 
       resizeSquareBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      undoBtn.addEventListener("mouseover", function () {
+        showHelpBox("Undo", "Undo the last drawn object.");
+      });
+
+      undoBtn.addEventListener("mouseout", function () {
         hideHelpBox();
       });
 
