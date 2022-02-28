@@ -304,7 +304,7 @@ function init() {
 
       movePointBtn.addEventListener("click", function () {
         changeTool("mover");
-      })
+      });
 
       resizeSquareBtn.addEventListener("click", function () {
         changeTool("resizeSquare");
@@ -408,6 +408,17 @@ function init() {
         hideHelpBox();
       });
 
+      movePointBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Move Point",
+          "Click the point you want to move and click again to place it.  To move a point of a line use Move Line tool."
+        );
+      });
+
+      movePointBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
       moveLineBtn.addEventListener("mouseover", function () {
         showHelpBox(
           "Move Line",
@@ -435,11 +446,11 @@ function init() {
           "Resize Rectangle",
           "Click one vertex of the rectangle you want to resize and click again to finished resizing the rectangle."
         );
-      })
+      });
 
       resizeRectangleBtn.addEventListener("mouseout", function () {
         hideHelpBox();
-      })
+      });
 
       undoBtn.addEventListener("mouseover", function () {
         showHelpBox("Undo", "Undo the last drawn object.");
