@@ -9,6 +9,16 @@ class Square {
     return Square.getArray(this.p1, this.p2);
   }
 
+  getPoints() {
+    var points = this.getArray();
+    var list_points = [];
+    for (var i = 0; i < points.length; i += 2) {
+      var point = new Point2D(points[i], points[i + 1])
+      list_points.push(point);
+    }
+    return list_points;
+  }
+
   static getArray(p1, p2) {
     const length = Math.min(Math.abs(p2.x - p1.x), Math.abs(p2.y - p1.y));
     const pdiag = [

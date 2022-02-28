@@ -218,12 +218,28 @@ class Polygon2D {
     if (Point2D.getSignedParallelogramArea(p1, p2, p3) >= 0) {
       result.push(p1, p2, p3);
     }
-
     return result;
   }
 
   getPoints() {
     return this._points.slice();
+  }
+
+  getNearestDistance(chosenpoint) {
+    var idx_nearest = -1;
+    var nearest = 999;
+    var points = this.getPoints();
+    var list_points = [];
+    for (var i = 0; i < points.length; i++) {
+      var point = points[i]
+      list_points.push(point);
+      var distance = point.distance(chosenpoint);
+      if (distance < nearest) {
+        idx_nearest = i
+        nearest = distance;
+      }
+    }
+    return [nearest, list_points[idx_nearest]];
   }
 
   render(gl, vertex_buffer, color_buffer) {

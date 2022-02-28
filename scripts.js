@@ -117,6 +117,26 @@ function init() {
         render();
       });
 
+      const moverUI = new MoverUI(canvas);
+
+      moverUI.listen("moveStarted", () => {
+        moverUI.getObject(objectList);
+        render();
+      });
+
+      moverUI.listen("moveEnded", (obj) => {
+        objectList.push(obj);
+        render();
+      });
+
+      moverUI.listen("moveAborted", () => {
+        render();
+      });
+
+      moverUI.listen("moved", () => {
+        render();
+      });
+
       // Square
       const squareDrawerUI = new SquareDrawerUI(canvas);
       squareDrawerUI.listen("squareCreated", (square) => {
@@ -168,6 +188,27 @@ function init() {
         render();
       });
 
+      // Resize Rectangle
+      const rectangleResizeUI = new RectangleResizeUI(canvas);
+
+      rectangleResizeUI.listen("resizeStarted", () => {
+        rectangleResizeUI.getRectangle(objectList);
+        render();
+      });
+
+      rectangleResizeUI.listen("resizeEnded", (rectangle) => {
+        objectList.push(rectangle);
+        render();
+      });
+
+      rectangleResizeUI.listen("resizeAborted", () => {
+        render();
+      });
+
+      rectangleResizeUI.listen("rectangleResized", () => {
+        render();
+      });
+
       // Polygon
       const polygonDrawerUI = new PolygonDrawerUI(canvas);
       polygonDrawerUI.listen("pointCreated", (point) => {
@@ -194,6 +235,8 @@ function init() {
         polygon: polygonDrawerUI,
         moveLine: lineMoveUI,
         resizeSquare: squareResizeUI,
+        resizeRectangle: rectangleResizeUI,
+        mover: moverUI,
       };
 
       // Bind color to currentColor
@@ -205,13 +248,16 @@ function init() {
       // End of UI
 
       // Button listeners
+      var movePointBtn = document.getElementById("movePointBtn");
       var lineBtn = document.getElementById("lineBtn");
       var squareBtn = document.getElementById("squareBtn");
       var rectangleBtn = document.getElementById("rectangleBtn");
+      var resizeRectangleBtn = document.getElementById("resizeRectangleBtn");
       var polygonBtn = document.getElementById("polygonBtn");
       var moveLineBtn = document.getElementById("moveLineBtn");
       var resizeSquareBtn = document.getElementById("resizeSquareBtn");
       var pickerBtn = document.getElementById("pickerBtn0");
+      var undoBtn = document.getElementById("undoBtn");
       var clearBtn = document.getElementById("clearBtn");
       var saveBtn = document.getElementById("saveBtn");
       var loadBtn = document.getElementById("loadBtn");
@@ -256,8 +302,16 @@ function init() {
         changeTool("moveLine");
       });
 
+      movePointBtn.addEventListener("click", function () {
+        changeTool("mover");
+      });
+
       resizeSquareBtn.addEventListener("click", function () {
         changeTool("resizeSquare");
+      });
+
+      resizeRectangleBtn.addEventListener("click", function () {
+        changeTool("resizeRectangle");
       });
 
       pickerBtn0.addEventListener("change", function () {
@@ -267,6 +321,11 @@ function init() {
         Object.entries(uiMap).forEach(([_, ui]) => {
           ui.color = currentColor;
         });
+      });
+
+      undoBtn.addEventListener("click", function () {
+        objectList.pop();
+        render();
       });
 
       clearBtn.addEventListener("click", function () {
@@ -349,6 +408,17 @@ function init() {
         hideHelpBox();
       });
 
+      movePointBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Move Point",
+          "Click the point you want to move and click again to place it.  To move a point of a line use Move Line tool."
+        );
+      });
+
+      movePointBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
       moveLineBtn.addEventListener("mouseover", function () {
         showHelpBox(
           "Move Line",
@@ -368,6 +438,25 @@ function init() {
       });
 
       resizeSquareBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      resizeRectangleBtn.addEventListener("mouseover", function () {
+        showHelpBox(
+          "Resize Rectangle",
+          "Click one vertex of the rectangle you want to resize and click again to finished resizing the rectangle."
+        );
+      });
+
+      resizeRectangleBtn.addEventListener("mouseout", function () {
+        hideHelpBox();
+      });
+
+      undoBtn.addEventListener("mouseover", function () {
+        showHelpBox("Undo", "Undo the last drawn object.");
+      });
+
+      undoBtn.addEventListener("mouseout", function () {
         hideHelpBox();
       });
 
