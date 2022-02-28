@@ -205,6 +205,7 @@ function init() {
       // End of UI
 
       // Button listeners
+      var movePointBtn = document.getElementById("movePointBtn");
       var lineBtn = document.getElementById("lineBtn");
       var squareBtn = document.getElementById("squareBtn");
       var rectangleBtn = document.getElementById("rectangleBtn");
