@@ -94,7 +94,6 @@ class MoverUI {
     getHelperArrays() {
         var points = this._chosen_object.getPoints();
         points[points.indexOf(this._start_point)] = this._end_point;
-        console.log(points);
         return points;
     }
   
