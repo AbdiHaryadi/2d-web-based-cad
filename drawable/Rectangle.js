@@ -9,6 +9,16 @@ class Rectangle {
     return Rectangle.getVertices(this.v1, this.v2);
   }
 
+  getPoints() {
+    var points = this.getVertices();
+    var list_points = [];
+    for (var i = 0; i < points.length; i += 2) {
+      var point = new Point2D(points[i], points[i + 1])
+      list_points.push(point);
+    }
+    return list_points;
+  }
+
   getNearestDistance(chosenpoint) {
     var idx_nearest = -1;
     var nearest = 999;

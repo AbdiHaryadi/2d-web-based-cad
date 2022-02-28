@@ -53,7 +53,6 @@ class SquareResizeUI {
     for (var i = objectList.length - 1; i >= 0; i--) {
       if (objectList[i] instanceof Square) {
         let nearestInfo = objectList[i].getNearestDistance(pointChosen);
-        console.log(nearestInfo);
         if (nearestInfo[0] < tolerance) {
           this._chosen_square = objectList[i];
           this._start_point = nearestInfo[2];

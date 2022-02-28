@@ -117,6 +117,26 @@ function init() {
         render();
       });
 
+      const moverUI = new MoverUI(canvas);
+
+      moverUI.listen("moveStarted", () => {
+        moverUI.getObject(objectList);
+        render();
+      });
+
+      moverUI.listen("moveEnded", (obj) => {
+        objectList.push(obj);
+        render();
+      });
+
+      moverUI.listen("moveAborted", () => {
+        render();
+      });
+
+      moverUI.listen("moved", () => {
+        render();
+      });
+
       // Square
       const squareDrawerUI = new SquareDrawerUI(canvas);
       squareDrawerUI.listen("squareCreated", (square) => {
@@ -216,6 +236,7 @@ function init() {
         moveLine: lineMoveUI,
         resizeSquare: squareResizeUI,
         resizeRectangle: rectangleResizeUI,
+        mover: moverUI,
       };
 
       // Bind color to currentColor
@@ -280,6 +301,10 @@ function init() {
       moveLineBtn.addEventListener("click", function () {
         changeTool("moveLine");
       });
+
+      movePointBtn.addEventListener("click", function () {
+        changeTool("mover");
+      })
 
       resizeSquareBtn.addEventListener("click", function () {
         changeTool("resizeSquare");
